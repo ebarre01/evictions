@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>Nashville Evictions</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="" />
+  <link href="https://api.mapbox.com/mapbox-assembly/v0.24.0/assembly.min.css" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=Work+Sans:400,500,600' rel='stylesheet' type='text/css'>
+  <link href="https://fonts.googleapis.com/css2?family=Quattrocento:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora&family=Quattrocento:wght@700&display=swap" rel="stylesheet">
+
+</head>
+<style>
+  .legend {
+    padding: 6px 8px;
+    font-size: 1em;
+    background: rgba(52, 73, 94, 0.5);
+    color: whitesmoke;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    width: 170px;
+  }
+
+  .legend h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1em;
+    color: whitesmoke;
+    margin: 0;
+  }
+
+  .legend h3 span {
+    font-size: 1.3em;
+    margin: 0 20px 0 0;
+  }
+
+  .legend ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 12px 4px 0;
+  }
+
+  .legend li {
+    height: 22px;
+  }
+
+  .legend span {
+    width: 30px;
+    height: 20px;
+    float: left;
+    margin-right: 10px;
+  }
+
+  #ui-controls3 {
+    width: 176px;
+    background: rgba(52, 73, 94, 0.5);
+    padding: 8px 25px 8px 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    color: whitesmoke;
+  }
+
+  #ui-controls3 .min {
+    float: left;
+  }
+
+  #ui-controls3 .max {
+    float: right;
+    margin-right: -15px;
+  }
+
+
+  label {
+    font-size: 1.1em;
+    font-weight: bold;
+  }
+
+  #info {
+    z-index: 1000;
+  }
+
+  .dropdown-content {
+    background: rgba(52, 73, 94, 0.5);
+    border-radius: 5px;
+    width: 170px;
+    padding: 6px 8px;
+    font-size: 1.2em;
+    color: whitesmoke;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  h1 {
+    font-family: 'Quattrocento', serif;
+  }
+
+  p {
+    font-family: 'Lora', serif;
+    font-size: 1.1em;
+  }
+
+  li{
+    font-family: 'Lora', serif;
+    font-size: 1.1em;
+  }
+</style>
+
+<body>
+
+  <script async defer src="https://api.mapbox.com/mapbox-assembly/v0.24.0/assembly.js"></script>
+  <div class='flex-parent viewport-full relative scroll-hidden'>
+    <div class='flex-child w-full w300-ml absolute static-ml left bottom'>
+      <div class='flex-parent flex-parent--column viewport-third h-full-ml hmax-full bg-white py18 px12'>
+        <div class='flex-child flex-child--grow px12 py12 scroll-auto'>
+          <h1 class='txt-h2 mb6'>Evictions in Nashville, TN DATE RANGE HERE</h1>
+          <br>
+          <p> ADD TEXT HERE
+          </p>
+        </div>
+        <footer class='px12 py12 bg-gray-faint txt-s'>
+          <ul>
+            <li>Authored by
+              <a class='link' href='https://eba287.github.io/'>Emily Barrett</a>
+            </li>
+            <li>Data soures &
+              <a class='link' href='https://github.com/eba287/displacement'> metadata </a>
+          </ul>
+        </footer>
+      </div>
+    </div>
+    <div class='flex-child flex-child--grow viewport-twothirds viewport-full-ml'>
+      <div id="map" class='viewport-twothirds viewport-full-ml'></div>
+      <!-- ui slider -->
+      <div id="ui-controls3">
+        <label>
+          <span class="min">1990</span>
+          <span class="max">2018</span>
+          <input type="range" min="1" , max="9" , value="3" , step="1" class="year-slider3"></input>
+        </label>
+      </div>
+
+      <!-- ui is outside of container-fluid and will be dynamically added to map -->
+      <div id="dropdown-ui">
+        <select class="dropdown-content">
+          <option value="BLACK" selected>Black</option>
+          <option value="WHITE">White</option>
+          <option value="HISPANIC">Hispanic</option>
+        </select>
+      </div>
+
+      <!-- ui info panel -->
+      <div id='info' class='py6 px12 bg-white border border--gray-light round fixed w240'>
+        <p><span class='txt-bold'><span></p>
+        <p></span>Population: <span class='population'></span>%</p>
+
+        <!-- Additional elements added here for this step! -->
+        <hr class='txt-hr'>
+        <p class='my6'>Trend: 1990 &ndash; 2018</p>
+        <p class='mb6'><span class='spark'></span></p>
+      </div>
+
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+    <script src='//api.tiles.mapbox.com/mapbox.js/plugins/leaflet-omnivore/v0.3.1/leaflet-omnivore.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-sparklines/2.1.2/jquery.sparkline.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.1.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+
+    <script>
+      // To do: change colors
+
+
+      const map = L.map('map', {
+        zoomSnap: .1,
+        center: [38.03, -84.45],
+        zoom: 11,
+        // minZoom: 7,
+      });
+
+      const accessToken = 'pk.eyJ1IjoiZWJhMjg3IiwiYSI6ImNrOXgya2tiaDAyM28zZXFkNXV5N25zdnEifQ.hRIQRtOQlL09t15yLq_y_A'
+
+      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=' + accessToken, {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        id: 'mapbox.light',
+        accessToken: accessToken
+      }).addTo(map);
+
+      // create a Leaflet control for the legend
+      const legendControl = L.control({
+        position: 'topright'
+      });
+      // make this global too
+      let currentYear = 2010
+
+      // set global variables for map layer
+      let attributeValue = $.getJSON("data/bg2010.json", function(blocks) {
+
+        Papa.parse('data/black2.csv', {
+
+          download: true,
+          header: true,
+          complete: function(data) {
+
+            processData(blocks, data);
+
+
+          }
+        });
+
+
+
+      });
+
+
+      function processData(blocks, data) {
+
+        // console.log(blocks);
+
+        // loop through all the block groups
+        for (let i of blocks.features) {
+
+          // for each of the CSV data rows
+          for (let j of data.data) {
+
+            // if the fips code and data fips code match
+            if (i.properties.GEOID10 === j.GEOID10) {
+
+              // re-assign the data for that blocks as the blocks's props
+              i.properties = j;
+
+              // no need to keep looping, break from inner loop
+              break;
+            }
+          }
+
+        }
+
+        // console.log(blocks);
+
+        getBreaks(blocks);
+
+      }
+      //
+
+      function getBreaks(blocks) {
+        // empty array to store all the data values
+        const rates = [];
+
+
+        // iterate through all the block groups
+        blocks.features.forEach(function(block) {
+
+          // iterate through all the props of each block
+          for (const prop in block.properties) {
+
+            // if the attribute is a number and not one of the fips codes or name
+            if (prop != "GEOID" && prop != "GEOID10" && prop != "NAME") {
+
+              // push that attribute value into the array
+              rates.push(Number(block.properties[prop]));
+            }
+          }
+        });
+
+        // verify the result!
+        // console.log(rates);
+
+
+
+        // create class breaks
+        var breaks = chroma.limits(rates, 'q', 5);
+
+
+        var colorize = chroma.scale(['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']).classes(breaks).mode('lab');
+
+        drawMap(blocks, colorize, breaks);
+
+      }
+
+      function drawMap(blocks, colorize, breaks) {
+
+        // create Leaflet object with geometry data and add to map
+        const dataLayer = L.geoJson(blocks, {
+          style: function(feature) {
+            return {
+              color: 'black',
+              weight: 1,
+              fillOpacity: 1,
+              fillColor: '#1f78b4'
+            };
+          }
+        }).addTo(map);
+
+
+
+        updateMap(dataLayer, colorize, currentYear);
+        drawLegend(breaks, colorize);
+        createSliderUI(dataLayer, colorize);
+
+
+
+      }
+
+      // add the UI control
+      // call function globally to prevent looping
+      addUi()
+
+      function updateMap(dataLayer, colorize, currentYear) {
+
+
+        dataLayer.eachLayer(function(layer) {
+          const props = layer.feature.properties;
+          // console.log(layer.feature.properties);
+
+          layer.setStyle({
+            fillColor: colorize(Number(props[currentYear]))
+          })
+
+        });
+
+
+
+        retreiveInfo(dataLayer, currentYear);
+
+
+      }
+
+      function drawLegend(breaks, colorize) {
+
+        // when the control is added to the map
+        legendControl.onAdd = function(map) {
+
+          // create a new division element with class of 'legend' and return
+          const legend = L.DomUtil.create('div', 'legend');
+          return legend;
+
+        };
+
+        // add the legend control to the map
+        legendControl.addTo(map);
+
+        // select div and create legend title
+        const legend = $('.legend').html(`<h3><span>${currentYear}</span>Percent of total population</h3><ul>`);
+
+        // loop through the break values
+        for (let i = 0; i < breaks.length - 1; i++) {
+
+          // determine color value
+          const color = colorize(breaks[i], breaks);
+
+          // create legend item
+          const classRange = `<li><span style="background:${color}"></span>
+        ${breaks[i].toLocaleString()} &mdash;
+        ${breaks[i + 1].toLocaleString()}% </li>`
+
+          // append to legend unordered list item
+          $('.legend ul').append(classRange);
+        }
+        // close legend unordered list
+        legend.append("</ul>");
+
+      } // end drawLegend()
+
+      function createSliderUI(dataLayer, colorize) {
+        //create Leaflet control for the slider
+
+        // create Leaflet control for the slider
+        const sliderControl3 = L.control({
+          position: 'bottomleft'
+        });
+
+        sliderControl3.onAdd = function(map) {
+
+          // select an existing DOM element with an id of "ui-controls"
+          const slider3 = L.DomUtil.get("ui-controls3");
+
+          // disable scrolling of map while using controls
+          L.DomEvent.disableScrollPropagation(slider3);
+
+          // disable click events while using controls
+          L.DomEvent.disableClickPropagation(slider3);
+
+          // return the slider from the onAdd method
+          return slider3;
+        }
+
+        // add the control to the map
+        sliderControl3.addTo(map);
+
+        // select the form element
+        $(".year-slider3")
+          .on("input change", function() { // when user changes
+            const selection = this.value;
+            currentYear = swapYear(selection)
+
+            function swapYear(selection) {
+
+              return selection == 1 ? 1990 :
+                selection == 2 ? 2000 :
+                selection == 3 ? 2010 :
+                selection == 4 ? 2013 :
+                selection == 5 ? 2014 :
+                selection == 6 ? 2015 :
+                selection == 7 ? 2016 :
+                selection == 8 ? 2017 :
+                selection == 9 ? 2018 :
+                2010;
+
+              // ternary operator above is like below
+              // if (selection == 1) {
+              //   return "1990"
+              // } else if (selection == 2) {
+              //   return 2000
+              // } else if (selection == 3) {
+              //   return 2010
+              // } else if (selection == 4) {
+              //   return 2013
+              // } else if (selection == 5) {
+              //   return 2014
+              // } else if (selection == 6) {
+              //   return 2015
+              // } else if (selection == 7) {
+              //   return 2016
+              // } else if (selection == 8) {
+              //   return 2017
+              // } else if (selection == 9) {
+              //   return 2018
+              // } else {
+              //   return 2010
+              // }
+
+
+            }
+            // console.log(currentYear,selection);
+            $('.legend h3 span').html(currentYear); // update legend with current timestamp
+            updateMap(dataLayer, colorize, currentYear); // update the map
+
+          });
+
+      } // end createSliderUI()
+
+
+      function addUi(dataLayer) {
+        // create the slider control
+        var selectControl = L.control({
+          position: "topright"
+        });
+
+        // when control is added
+        selectControl.onAdd = function() {
+          // get the element with id attribute of ui-controls
+          return L.DomUtil.get("dropdown-ui");
+        };
+        // add the control to the map
+        selectControl.addTo(map);
+
+        let i = 0
+
+        $('#dropdown-ui select').change(function() {
+          // code executed here when change event occurs
+          // console.log(`Something changed at ${Date.now()}`);
+          // console.log(this.value);
+          attributeValue = this.value;
+
+          i++
+
+          // Hack to remove overlay layers
+          map.eachLayer(function(layer) {
+            // console.log(layer)
+            if (!layer._url) {
+              map.removeLayer(layer)
+            }
+          });
+
+          map.eachLayer(function(layer) {
+            // console.log(layer)
+          });
+
+
+          if (attributeValue === "WHITE") {
+
+            const getData = $.getJSON("data/bg2010.json", function(counties) {
+
+              Papa.parse('data/white2.csv', {
+
+                download: true,
+                header: true,
+                complete: function(data) {
+
+                  processData(counties, data);
+
+                }
+              });
+
+            });
+
+          } else if (attributeValue === "BLACK") {
+
+            const getData = $.getJSON("data/bg2010.json", function(counties) {
+
+              Papa.parse('data/black2.csv', {
+
+                download: true,
+                header: true,
+                complete: function(data) {
+
+                  processData(counties, data);
+
+
+                }
+              });
+
+            });
+
+          } else if (attributeValue === "HISPANIC") {
+
+            const getData = $.getJSON("data/bg2010.json", function(counties) {
+
+              Papa.parse('data/hispanic2.csv', {
+
+                download: true,
+                header: true,
+                complete: function(data) {
+
+                  processData(counties, data);
+
+
+                }
+              });
+
+            });
+
+
+          };
+
+          // console.log(i)
+
+        });
+
+      }
+
+      function retreiveInfo(dataLayer, currentYear) {
+        // function body
+        // select the element and reference with variable
+        // and hide it from view initially
+        const info = $('#info').hide();
+
+        // since boysLayer is on top, use to detect mouseover events
+        dataLayer.on('mouseover', function(e) {
+
+          // remove the none class to display and show
+          info.show();
+
+          // access properties of target layer
+          const props = e.layer.feature.properties;
+          // console.log(props[currentYear]);
+
+          // populate HTML elements with relevant info
+          $('#info span').html(props.NAME);
+          $(".year").html(currentYear);
+          $(".population").html(props[currentYear]);
+
+
+          // raise opacity level as visual affordance
+          e.layer.setStyle({
+            fillOpacity: .5,
+            weight: 2
+          });
+
+          // empty arrays for data values
+          const dataValues = []
+
+          dataValues.push(props[1990]);
+          dataValues.push(props[2000]);
+          dataValues.push(props[2010]);
+
+          // loop through the grade levels and push values into those arrays
+          for (let i = 3; i <= 8; i++) {
+            dataValues.push(props['201' + i]);
+          }
+
+          // console.log(dataValues);
+
+          $('.spark').sparkline(dataValues, {
+            width: '200px',
+            height: '30px',
+            lineColor: '#00909e',
+            fillColor: '#00909e',
+            spotRadius: 0,
+            lineWidth: 2
+          });
+          //
+
+        });
+
+        // hide the info panel when mousing off layergroup and remove affordance opacity
+        dataLayer.on('mouseout', function(e) {
+
+          // hide the info panel
+          info.hide();
+
+          // reset the layer style
+          e.layer.setStyle({
+            fillOpacity: 1,
+            weight: 1
+          });
+        });
+
+        // when the mouse moves on the document
+        $(document).mousemove(function(e) {
+          // first offset from the mouse position of the info window
+          info.css({
+            "left": e.pageX + 6,
+            "top": e.pageY - info.height() - 25
+          });
+
+          // if it crashes into the top, flip it lower right
+          if (info.offset().top < 4) {
+            info.css({
+              "top": e.pageY + 15
+            });
+          }
+          // if it crashes into the right, flip it to the left
+          if (info.offset().left + info.width() >= $(document).width() - 40) {
+            info.css({
+              "left": e.pageX - info.width() - 80
+            });
+          }
+        });
+      }
+    </script>
+
+</body>
+
+</html>
