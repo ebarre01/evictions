@@ -100,7 +100,7 @@
     font-size: 1.1em;
   }
 
-  li{
+  li {
     font-family: 'Lora', serif;
     font-size: 1.1em;
   }
@@ -113,7 +113,7 @@
     <div class='flex-child w-full w300-ml absolute static-ml left bottom'>
       <div class='flex-parent flex-parent--column viewport-third h-full-ml hmax-full bg-white py18 px12'>
         <div class='flex-child flex-child--grow px12 py12 scroll-auto'>
-          <h1 class='txt-h2 mb6'>Evictions in Nashville, TN DATE RANGE HERE</h1>
+          <h1 class='txt-h2 mb6'>Evictions, Nashville, TN 2001 - 2016 </h1>
           <br>
           <p> ADD TEXT HERE
           </p>
@@ -123,7 +123,7 @@
             <li>Authored by
               <a class='link' href='https://eba287.github.io/'>Emily Barrett</a>
             </li>
-            <li>Data soures &
+            <li>UPDATE!! Data soures &
               <a class='link' href='https://github.com/eba287/displacement'> metadata </a>
           </ul>
         </footer>
@@ -136,7 +136,7 @@
         <label>
           <span class="min">2001</span>
           <span class="max">2016</span>
-          <input type="range" min="1" , max="16", value="16" step="1" class="year-slider3"></input>
+          <input type="range" min="1" , max="16" , value="16" step="1" class="year-slider3"></input>
         </label>
       </div>
 
@@ -150,8 +150,8 @@
 
       <!-- ui info panel -->
       <div id='info' class='py6 px12 bg-white border border--gray-light round fixed w240'>
-        <p><span class='txt-bold'><span></p>
-        <p></span>Rates: <span class='population'></span></p>
+        <p>Block group: <span class='txt-bold'><span></p>
+        <p></span>Rate: <span class='population'></span></p>
 
         <!-- Additional elements added here for this step! -->
         <hr class='txt-hr'>
@@ -179,7 +179,7 @@
         // minZoom: 7,
       });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
       }).addTo(map);
@@ -209,7 +209,6 @@
 
 
       });
-
 
       function processData(blocks, data) {
 
@@ -288,14 +287,14 @@
               fillColor: '#1f78b4'
             };
           }
+
         }).addTo(map);
+
 
 
         updateMap(dataLayer, colorize, currentYear);
         drawLegend(breaks, colorize);
         createSliderUI(dataLayer, colorize);
-
-
 
       }
 
@@ -315,8 +314,6 @@
           })
 
         });
-
-
 
         retreiveInfo(dataLayer, currentYear);
 
