@@ -169,9 +169,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
 
     <script>
-      // To do: change colors
-
-
       const map = L.map('map', {
         zoomSnap: .1,
         center: [36.1627, -86.7816],
@@ -184,6 +181,21 @@
         subdomains: 'abcd',
       }).addTo(map);
 
+      const points =$.getJSON("data/mdha.geojson", function(data) {
+        // L.geoJson function is used to parse geojson file and load on to map
+        L.geoJson(data, {
+          style: function(feature) {
+          return {
+            color: '#eff3ff',
+            weight: 1,
+            fillOpacity: 1,
+            fillColor: '#eff3ff'
+          };
+        }
+        }).addTo(map);
+      });
+
+      //CODE BEGINS HERE FOR EVICTIONS
       // create a Leaflet control for the legend
       const legendControl = L.control({
         position: 'topright'
@@ -271,11 +283,11 @@
 
         var colorize = chroma.scale(['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']).classes(breaks).mode('lab');
 
-        drawMap(blocks, colorize, breaks);
+        drawMap(blocks, colorize, breaks, points);
 
       }
 
-      function drawMap(blocks, colorize, breaks) {
+      function drawMap(blocks, colorize, breaks, points) {
 
         // create Leaflet object with geometry data and add to map
         const dataLayer = L.geoJson(blocks, {
@@ -289,8 +301,6 @@
           }
 
         }).addTo(map);
-
-
 
         updateMap(dataLayer, colorize, currentYear);
         drawLegend(breaks, colorize);
@@ -400,7 +410,7 @@
                 selection == 8 ? 2008 :
                 selection == 9 ? 2009 :
                 selection == 10 ? 2010 :
-                selection == 11? 2011 :
+                selection == 11 ? 2011 :
                 selection == 12 ? 2012 :
                 selection == 13 ? 2013 :
                 selection == 14 ? 2014 :
@@ -513,23 +523,23 @@
 
             });
 
-          // } else if (attributeValue === "HISPANIC") {
-          //
-          //   const getData = $.getJSON("data/bg2010.json", function(counties) {
-          //
-          //     Papa.parse('data/hispanic2.csv', {
-          //
-          //       download: true,
-          //       header: true,
-          //       complete: function(data) {
-          //
-          //         processData(counties, data);
-          //
-          //
-          //       }
-          //     });
-          //
-          //   });
+            // } else if (attributeValue === "HISPANIC") {
+            //
+            //   const getData = $.getJSON("data/bg2010.json", function(counties) {
+            //
+            //     Papa.parse('data/hispanic2.csv', {
+            //
+            //       download: true,
+            //       header: true,
+            //       complete: function(data) {
+            //
+            //         processData(counties, data);
+            //
+            //
+            //       }
+            //     });
+            //
+            //   });
 
 
           };
