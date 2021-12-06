@@ -134,8 +134,8 @@
       <!-- ui slider -->
       <div id="ui-controls3">
         <label>
-          <span class="min">1990</span>
-          <span class="max">2018</span>
+          <span class="min">2001</span>
+          <span class="max">2016</span>
           <input type="range" min="1" , max="9" , value="3" , step="1" class="year-slider3"></input>
         </label>
       </div>
@@ -143,9 +143,8 @@
       <!-- ui is outside of container-fluid and will be dynamically added to map -->
       <div id="dropdown-ui">
         <select class="dropdown-content">
-          <option value="BLACK" selected>Black</option>
-          <option value="WHITE">White</option>
-          <option value="HISPANIC">Hispanic</option>
+          <option value="RATES" selected>Rates</option>
+          <option value="FILINGS">Filings</option>
         </select>
       </div>
 
@@ -156,7 +155,7 @@
 
         <!-- Additional elements added here for this step! -->
         <hr class='txt-hr'>
-        <p class='my6'>Trend: 1990 &ndash; 2018</p>
+        <p class='my6'>Trend: 2001 &ndash; 2016</p>
         <p class='mb6'><span class='spark'></span></p>
       </div>
 
@@ -175,7 +174,7 @@
 
       const map = L.map('map', {
         zoomSnap: .1,
-        center: [38.03, -84.45],
+        center: [36.1627, -86.7816],
         zoom: 11,
         // minZoom: 7,
       });
@@ -197,9 +196,9 @@
       let currentYear = 2010
 
       // set global variables for map layer
-      let attributeValue = $.getJSON("data/bg2010.json", function(blocks) {
+      let attributeValue = $.getJSON("data/bg2010.geojson", function(blocks) {
 
-        Papa.parse('data/black2.csv', {
+        Papa.parse('data/erates.csv', {
 
           download: true,
           header: true,
@@ -239,7 +238,8 @@
 
         }
 
-        // console.log(blocks);
+        console.log(blocks);
+
 
         getBreaks(blocks);
 
@@ -258,7 +258,7 @@
           for (const prop in block.properties) {
 
             // if the attribute is a number and not one of the fips codes or name
-            if (prop != "GEOID" && prop != "GEOID10" && prop != "NAME") {
+            if (prop != "GEOID10" && prop != "NAME") {
 
               // push that attribute value into the array
               rates.push(Number(block.properties[prop]));
@@ -266,9 +266,8 @@
           }
         });
 
-        // verify the result!
+        // verify the results
         // console.log(rates);
-
 
 
         // create class breaks
@@ -294,7 +293,6 @@
             };
           }
         }).addTo(map);
-
 
 
         updateMap(dataLayer, colorize, currentYear);
@@ -399,16 +397,19 @@
 
             function swapYear(selection) {
 
-              return selection == 1 ? 1990 :
-                selection == 2 ? 2000 :
-                selection == 3 ? 2010 :
-                selection == 4 ? 2013 :
-                selection == 5 ? 2014 :
-                selection == 6 ? 2015 :
-                selection == 7 ? 2016 :
-                selection == 8 ? 2017 :
-                selection == 9 ? 2018 :
-                2010;
+              return selection == 1 ? 2001 :
+                selection == 2 ? 2002 :
+                selection == 3 ? 2003 :
+                selection == 4 ? 2004 :
+                selection == 5 ? 2005 :
+                selection == 6 ? 2006 :
+                selection == 7 ? 2007 :
+                selection == 8 ? 2008 :
+                selection == 9 ? 2009 :
+                selection == 10 ? 2010 :
+                selection == 11? 2011 :
+                selection == 12 ? 2012 :
+                2016;
 
               // ternary operator above is like below
               // if (selection == 1) {
@@ -481,11 +482,11 @@
           });
 
 
-          if (attributeValue === "WHITE") {
+          if (attributeValue === "RATES") {
 
-            const getData = $.getJSON("data/bg2010.json", function(counties) {
+            const getData = $.getJSON("data/bg2010.geojson", function(counties) {
 
-              Papa.parse('data/white2.csv', {
+              Papa.parse('data/erates.csv', {
 
                 download: true,
                 header: true,
@@ -498,29 +499,11 @@
 
             });
 
-          } else if (attributeValue === "BLACK") {
+          } else if (attributeValue === "FILINGS") {
 
-            const getData = $.getJSON("data/bg2010.json", function(counties) {
+            const getData = $.getJSON("data/bg2010.geojson", function(counties) {
 
-              Papa.parse('data/black2.csv', {
-
-                download: true,
-                header: true,
-                complete: function(data) {
-
-                  processData(counties, data);
-
-
-                }
-              });
-
-            });
-
-          } else if (attributeValue === "HISPANIC") {
-
-            const getData = $.getJSON("data/bg2010.json", function(counties) {
-
-              Papa.parse('data/hispanic2.csv', {
+              Papa.parse('data/efilings.csv', {
 
                 download: true,
                 header: true,
@@ -533,6 +516,24 @@
               });
 
             });
+
+          // } else if (attributeValue === "HISPANIC") {
+          //
+          //   const getData = $.getJSON("data/bg2010.json", function(counties) {
+          //
+          //     Papa.parse('data/hispanic2.csv', {
+          //
+          //       download: true,
+          //       header: true,
+          //       complete: function(data) {
+          //
+          //         processData(counties, data);
+          //
+          //
+          //       }
+          //     });
+          //
+          //   });
 
 
           };
