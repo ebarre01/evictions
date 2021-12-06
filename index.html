@@ -181,6 +181,7 @@
         subdomains: 'abcd',
       }).addTo(map);
 
+      //CODE FOR MDHA POINTS:
       const points =$.getJSON("data/mdha.geojson", function(data) {
         // L.geoJson function is used to parse geojson file and load on to map
         L.geoJson(data, {
