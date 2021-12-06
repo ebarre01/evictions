@@ -136,14 +136,14 @@
         <label>
           <span class="min">2001</span>
           <span class="max">2016</span>
-          <input type="range" min="1" , max="9" , value="3" , step="1" class="year-slider3"></input>
+          <input type="range" min="1" , max="16", value="16" step="1" class="year-slider3"></input>
         </label>
       </div>
 
       <!-- ui is outside of container-fluid and will be dynamically added to map -->
       <div id="dropdown-ui">
         <select class="dropdown-content">
-          <option value="RATES" selected>Rates</option>
+          <option value="RATES" selected>Evictions</option>
           <option value="FILINGS">Filings</option>
         </select>
       </div>
@@ -151,7 +151,7 @@
       <!-- ui info panel -->
       <div id='info' class='py6 px12 bg-white border border--gray-light round fixed w240'>
         <p><span class='txt-bold'><span></p>
-        <p></span>Population: <span class='population'></span>%</p>
+        <p></span>Rates: <span class='population'></span></p>
 
         <!-- Additional elements added here for this step! -->
         <hr class='txt-hr'>
@@ -175,17 +175,13 @@
       const map = L.map('map', {
         zoomSnap: .1,
         center: [36.1627, -86.7816],
-        zoom: 11,
+        zoom: 10.7,
         // minZoom: 7,
       });
 
-      const accessToken = 'pk.eyJ1IjoiZWJhMjg3IiwiYSI6ImNrOXgya2tiaDAyM28zZXFkNXV5N25zdnEifQ.hRIQRtOQlL09t15yLq_y_A'
-
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=' + accessToken, {
-        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox.light',
-        accessToken: accessToken
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
       }).addTo(map);
 
       // create a Leaflet control for the legend
@@ -193,7 +189,7 @@
         position: 'topright'
       });
       // make this global too
-      let currentYear = 2010
+      let currentYear = 2016
 
       // set global variables for map layer
       let attributeValue = $.getJSON("data/bg2010.geojson", function(blocks) {
@@ -238,7 +234,7 @@
 
         }
 
-        console.log(blocks);
+        // console.log(blocks);
 
 
         getBreaks(blocks);
@@ -342,7 +338,7 @@
         legendControl.addTo(map);
 
         // select div and create legend title
-        const legend = $('.legend').html(`<h3><span>${currentYear}</span>Percent of total population</h3><ul>`);
+        const legend = $('.legend').html(`<h3><span>${currentYear}</span>Rate per 100 renters</h3><ul>`);
 
         // loop through the break values
         for (let i = 0; i < breaks.length - 1; i++) {
@@ -353,7 +349,7 @@
           // create legend item
           const classRange = `<li><span style="background:${color}"></span>
         ${breaks[i].toLocaleString()} &mdash;
-        ${breaks[i + 1].toLocaleString()}% </li>`
+        ${breaks[i + 1].toLocaleString()} </li>`
 
           // append to legend unordered list item
           $('.legend ul').append(classRange);
@@ -409,6 +405,9 @@
                 selection == 10 ? 2010 :
                 selection == 11? 2011 :
                 selection == 12 ? 2012 :
+                selection == 13 ? 2013 :
+                selection == 14 ? 2014 :
+                selection == 15 ? 2015 :
                 2016;
 
               // ternary operator above is like below
@@ -575,14 +574,30 @@
           // empty arrays for data values
           const dataValues = []
 
-          dataValues.push(props[1990]);
-          dataValues.push(props[2000]);
+          dataValues.push(props[2001]);
+          dataValues.push(props[2002]);
+          dataValues.push(props[2003]);
+          dataValues.push(props[2004]);
+          dataValues.push(props[2005]);
+          dataValues.push(props[2006]);
+          dataValues.push(props[2007]);
+          dataValues.push(props[2008]);
+          dataValues.push(props[2009]);
           dataValues.push(props[2010]);
+          dataValues.push(props[2011]);
+          dataValues.push(props[2012]);
+          dataValues.push(props[2013]);
+          dataValues.push(props[2014]);
+          dataValues.push(props[2015]);
+          dataValues.push(props[2016]);
+
+          // console.log(dataValues);
+
 
           // loop through the grade levels and push values into those arrays
-          for (let i = 3; i <= 8; i++) {
-            dataValues.push(props['201' + i]);
-          }
+          // for (let i = 3; i <= 8; i++) {
+          //   dataValues.push(props['201' + i]);
+          // }
 
           // console.log(dataValues);
 
