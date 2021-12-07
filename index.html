@@ -215,6 +215,7 @@
 
       });
 
+
       function processData(blocks, data) {
 
         // console.log(blocks);
@@ -312,6 +313,15 @@
             };
           }
           }).addTo(map);
+
+          var sourcesLabels = {
+            "MDHA properties": pointsLayer,
+          }
+
+          L.control.layers(null, sourcesLabels, {
+            collapsed: false,
+          }).addTo(map);
+
         });
 
         updateMap(dataLayer, colorize, currentYear);
@@ -376,9 +386,9 @@
         }
 
 
-        const circle = '<li>MDHA properties</li>';
-
-        legend.append(circle);
+        // const circle = '<li>MDHA properties</li>';
+        //
+        // legend.append(circle);
 
 
         // close legend unordered list
