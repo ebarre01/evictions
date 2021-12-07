@@ -53,6 +53,14 @@
     margin-right: 10px;
   }
 
+  .legend circle {
+    fill: #eff3ff;
+    stroke: #ccc;
+    cx: 200;
+    cy: 130;
+    r:6;
+  }
+
   #ui-controls3 {
     width: 176px;
     background: rgba(52, 73, 94, 0.5);
@@ -295,11 +303,11 @@
               },
             style: function(feature) {
             return {
-              color: '#F10000',
+              color: '#FEEE00',
               weight: 1,
-              fillOpacity: 0.5,
-              fillColor: '#F10000',
-              radius:1,
+              fillOpacity: 1,
+              fillColor: '#fff7bc',
+              radius:3,
             };
           }
           }).addTo(map);
@@ -363,7 +371,9 @@
 
           // append to legend unordered list item
           $('.legend ul').append(classRange);
+
         }
+
         // close legend unordered list
         legend.append("</ul>");
 
