@@ -181,21 +181,6 @@
         subdomains: 'abcd',
       }).addTo(map);
 
-      //CODE FOR MDHA POINTS:
-      const points =$.getJSON("data/mdha.geojson", function(data) {
-        // L.geoJson function is used to parse geojson file and load on to map
-        L.geoJson(data, {
-          style: function(feature) {
-          return {
-            color: '#eff3ff',
-            weight: 1,
-            fillOpacity: 1,
-            fillColor: '#eff3ff'
-          };
-        }
-        }).addTo(map);
-      });
-
       //CODE BEGINS HERE FOR EVICTIONS
       // create a Leaflet control for the legend
       const legendControl = L.control({
@@ -218,8 +203,6 @@
 
           }
         });
-
-
 
       });
 
@@ -252,7 +235,7 @@
         getBreaks(blocks);
 
       }
-      //
+
 
       function getBreaks(blocks) {
         // empty array to store all the data values
@@ -284,11 +267,11 @@
 
         var colorize = chroma.scale(['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']).classes(breaks).mode('lab');
 
-        drawMap(blocks, colorize, breaks, points);
+        drawMap(blocks, colorize, breaks);
 
       }
-
-      function drawMap(blocks, colorize, breaks, points) {
+      //
+      function drawMap(blocks, colorize, breaks) {
 
         // create Leaflet object with geometry data and add to map
         const dataLayer = L.geoJson(blocks, {
@@ -303,8 +286,27 @@
 
         }).addTo(map);
 
+        //CODE FOR MDHA POINTS:
+        const points =$.getJSON("data/mdha.geojson", function(data) {
+          // L.geoJson function is used to parse geojson file and load on to map
+          var pointsLayer = L.geoJson(data, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng);
+              },
+            style: function(feature) {
+            return {
+              color: '#F10000',
+              weight: 1,
+              fillOpacity: 0.5,
+              fillColor: '#F10000',
+              radius:1,
+            };
+          }
+          }).addTo(map);
+        });
+
         updateMap(dataLayer, colorize, currentYear);
-        drawLegend(breaks, colorize);
+        drawLegend(breaks, colorize, points);
         createSliderUI(dataLayer, colorize);
 
       }
@@ -331,7 +333,7 @@
 
       }
 
-      function drawLegend(breaks, colorize) {
+      function drawLegend(breaks, colorize, points) {
 
         // when the control is added to the map
         legendControl.onAdd = function(map) {
