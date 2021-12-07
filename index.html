@@ -53,14 +53,6 @@
     margin-right: 10px;
   }
 
-  .legend circle {
-    fill: #eff3ff;
-    stroke: #ccc;
-    cx: 200;
-    cy: 130;
-    r:6;
-  }
-
   #ui-controls3 {
     width: 176px;
     background: rgba(52, 73, 94, 0.5);
@@ -129,7 +121,7 @@
         <footer class='px12 py12 bg-gray-faint txt-s'>
           <ul>
             <li>Authored by
-              <a class='link' href='https://eba287.github.io/'>Emily Barrett</a>
+              <a class='link' href='https://eba287.github.io/'>Emily Barrett </a>& Laurel Weiss
             </li>
             <li>UPDATE!! Data soures &
               <a class='link' href='https://github.com/eba287/displacement'> metadata </a>
@@ -295,7 +287,7 @@
         }).addTo(map);
 
         //CODE FOR MDHA POINTS:
-        const points =$.getJSON("data/mdha.geojson", function(data) {
+        const points =$.getJSON("data/mdha2.geojson", function(data) {
           // L.geoJson function is used to parse geojson file and load on to map
           var pointsLayer = L.geoJson(data, {
             pointToLayer: function(feature, latlng) {
@@ -305,7 +297,7 @@
             return {
               color: '#FEEE00',
               weight: 1,
-              fillOpacity: 1,
+              fillOpacity: 0.7,
               fillColor: '#fff7bc',
               radius:3,
             };
@@ -314,7 +306,7 @@
         });
 
         updateMap(dataLayer, colorize, currentYear);
-        drawLegend(breaks, colorize, points);
+        drawLegend(breaks, colorize);
         createSliderUI(dataLayer, colorize);
 
       }
@@ -341,7 +333,7 @@
 
       }
 
-      function drawLegend(breaks, colorize, points) {
+      function drawLegend(breaks, colorize) {
 
         // when the control is added to the map
         legendControl.onAdd = function(map) {
@@ -373,6 +365,12 @@
           $('.legend ul').append(classRange);
 
         }
+
+
+        const circle = '<li>MDHA properties</li>';
+
+        legend.append(circle);
+
 
         // close legend unordered list
         legend.append("</ul>");
