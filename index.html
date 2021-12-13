@@ -281,20 +281,9 @@
 
       }
       //
-      function drawMap(blocks, colorize, breaks) {
 
-        // create Leaflet object with geometry data and add to map
-        const dataLayer = L.geoJson(blocks, {
-          style: function(feature) {
-            return {
-              color: 'black',
-              weight: 1,
-              fillOpacity: 1,
-              fillColor: '#1f78b4'
-            };
-          }
 
-        }).addTo(map);
+      function drawPoints(pubhous, sub) {
 
         //CODE FOR MDHA POINTS:
         const mdha = $.getJSON("data/mdha2.geojson", function(data) {
@@ -305,10 +294,10 @@
             },
             style: function(feature) {
               return {
-                color: '#e34a33',
+                color: '#FFD60A',
                 weight: 1,
                 fillOpacity: 0.7,
-                fillColor: '#e34a33',
+                fillColor: '#FFD60A',
                 radius: 3,
               };
             },
@@ -324,8 +313,15 @@
             }
           }).addTo(map);
 
-        });
+          // const sourcesLabels = {
+          //   "MDHA properties": mdhaLayer
+          // }
+          //
+          // L.control.layers(null, sourcesLabels, {
+          //   collapsed: false
+          // }).addTo(map);
 
+        });
 
         const housing = $.getJSON("data/subhousing.geojson", function(data) {
           var housingLayer = L.geoJson(data, {
@@ -334,15 +330,15 @@
             },
             style: function(feature) {
               return {
-                color: '#FEEE00',
+                color: '#D62828',
                 weight: 1,
                 fillOpacity: 0.7,
-                fillColor: '#fff7bc',
+                fillColor: '#D62828',
                 radius: 3,
               }
             },
             onEachFeature: function(feature, layer) {
-              // console.log(stores);
+              // console.log(housing);
               var props = layer.feature.properties;
               // console.log(props);
               // console.log(props.Tot_Units);
@@ -354,17 +350,44 @@
               layer.bindTooltip(popup);
             }
           }).addTo(map);
+
+          // const sourcesLabels = {
+          //   "subsidized": housingLayer
+          // }
+          //
+          // L.control.layers(null, sourcesLabels, {
+          //   collapsed: false
+          // }).addTo(map);
+          //
         });
 
-        // var sourcesLabels = {
-        //   "MDHA properties": mdha.housingLayer
+      }
+
+      function drawMap(blocks, colorize, breaks) {
+
+        // create Leaflet object with geometry data and add to map
+        const dataLayer = L.geoJson(blocks, {
+          style: function(feature) {
+            return {
+              color: 'black',
+              weight: 1,
+              fillOpacity: 1,
+              fillColor: '#1f78b4'
+            };
+          }
+
+        }).addTo(map);
+
+
+
+        // const sourcesLabels = {
+        //   "subsidized": housingLayer
+        // }
+
+        // const sourcesLabels = {
+        //   "MDHA properties": mdha.mdhaLayer
         // }
         //
-        // L.control.layers(null, sourcesLabels, {
-        //   collapsed: false,
-        //
-        // }).addTo(map);
-
 
         // var sourcesLabels = {
         //   "<b style='color:#D12B18'>Fire stations</b>": stationsLayer,
@@ -379,6 +402,7 @@
         updateMap(dataLayer, colorize, currentYear);
         drawLegend(breaks, colorize);
         createSliderUI(dataLayer, colorize);
+
 
       }
 
@@ -400,7 +424,7 @@
         });
 
         retreiveInfo(dataLayer, currentYear);
-
+        drawPoints();
 
       }
 
