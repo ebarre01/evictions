@@ -283,7 +283,8 @@
       //
 
 
-      function drawPoints(pubhous, sub) {
+      function drawPoints(pub, sub) {
+
 
         //CODE FOR MDHA POINTS:
         const mdha = $.getJSON("data/mdha2.geojson", function(data) {
@@ -313,16 +314,6 @@
             }
           }).addTo(map);
 
-          // const sourcesLabels = {
-          //   "MDHA properties": mdhaLayer
-          // }
-          //
-          // L.control.layers(null, sourcesLabels, {
-          //   collapsed: false
-          // }).addTo(map);
-
-        });
-
         const housing = $.getJSON("data/subhousing.geojson", function(data) {
           var housingLayer = L.geoJson(data, {
             pointToLayer: function(feature, latlng) {
@@ -351,14 +342,15 @@
             }
           }).addTo(map);
 
-          // const sourcesLabels = {
-          //   "subsidized": housingLayer
-          // }
-          //
-          // L.control.layers(null, sourcesLabels, {
-          //   collapsed: false
-          // }).addTo(map);
-          //
+          const sourcesLabels = {
+            "<b style ='color:#FFD60A'> MDHA properties</b>" : mdhaLayer,
+            "<b style ='color:#D62828'> Subsidized housing</b>": housingLayer
+          }
+
+          addcontrol(sourcesLabels);
+
+        });
+
         });
 
       }
@@ -378,26 +370,6 @@
 
         }).addTo(map);
 
-
-
-        // const sourcesLabels = {
-        //   "subsidized": housingLayer
-        // }
-
-        // const sourcesLabels = {
-        //   "MDHA properties": mdha.mdhaLayer
-        // }
-        //
-
-        // var sourcesLabels = {
-        //   "<b style='color:#D12B18'>Fire stations</b>": stationsLayer,
-        //   "<b style='color:#1861D1'>After school programs</b>": programsLayer,
-        //   "<b style='color:#8818D1'>Food stores</b>": storesLayer
-        // };
-        //
-        // L.control.layers(null, sourcesLabels, {
-        //   collapsed: false
-        // }).addTo(map);
 
         updateMap(dataLayer, colorize, currentYear);
         drawLegend(breaks, colorize);
@@ -423,8 +395,18 @@
 
         });
 
+
         retreiveInfo(dataLayer, currentYear);
         drawPoints();
+
+      }
+
+      function addcontrol (sourcesLabels){
+
+        L.control.layers(null, sourcesLabels, {
+          collapsed: false
+        }).addTo(map);
+
 
       }
 
@@ -523,30 +505,6 @@
                 selection == 15 ? 2015 :
                 2016;
 
-              // ternary operator above is like below
-              // if (selection == 1) {
-              //   return "1990"
-              // } else if (selection == 2) {
-              //   return 2000
-              // } else if (selection == 3) {
-              //   return 2010
-              // } else if (selection == 4) {
-              //   return 2013
-              // } else if (selection == 5) {
-              //   return 2014
-              // } else if (selection == 6) {
-              //   return 2015
-              // } else if (selection == 7) {
-              //   return 2016
-              // } else if (selection == 8) {
-              //   return 2017
-              // } else if (selection == 9) {
-              //   return 2018
-              // } else {
-              //   return 2010
-              // }
-
-
             }
             // console.log(currentYear,selection);
             $('.legend h3 span').html(currentYear); // update legend with current timestamp
@@ -629,28 +587,8 @@
 
             });
 
-            // } else if (attributeValue === "HISPANIC") {
-            //
-            //   const getData = $.getJSON("data/bg2010.json", function(counties) {
-            //
-            //     Papa.parse('data/hispanic2.csv', {
-            //
-            //       download: true,
-            //       header: true,
-            //       complete: function(data) {
-            //
-            //         processData(counties, data);
-            //
-            //
-            //       }
-            //     });
-            //
-            //   });
-
 
           };
-
-          // console.log(i)
 
         });
 
@@ -761,6 +699,7 @@
           }
         });
       }
+
     </script>
 
 </body>
