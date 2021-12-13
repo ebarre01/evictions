@@ -275,7 +275,7 @@
         var breaks = chroma.limits(rates, 'q', 5);
 
 
-        var colorize = chroma.scale(['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']).classes(breaks).mode('lab');
+        var colorize = chroma.scale(['#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']).classes(breaks).mode('lab');
 
         drawMap(blocks, colorize, breaks);
 
@@ -297,33 +297,84 @@
         }).addTo(map);
 
         //CODE FOR MDHA POINTS:
-        const points =$.getJSON("data/mdha2.geojson", function(data) {
+        const mdha = $.getJSON("data/mdha2.geojson", function(data) {
           // L.geoJson function is used to parse geojson file and load on to map
-          var pointsLayer = L.geoJson(data, {
+          var mdhaLayer = L.geoJson(data, {
             pointToLayer: function(feature, latlng) {
-                return L.circleMarker(latlng);
-              },
+              return L.circleMarker(latlng);
+            },
             style: function(feature) {
-            return {
-              color: '#FEEE00',
-              weight: 1,
-              fillOpacity: 0.7,
-              fillColor: '#fff7bc',
-              radius:3,
-            };
-          }
-          }).addTo(map);
-
-          var sourcesLabels = {
-            "MDHA properties": pointsLayer,
-          }
-
-          L.control.layers(null, sourcesLabels, {
-            collapsed: false,
-
+              return {
+                color: '#e34a33',
+                weight: 1,
+                fillOpacity: 0.7,
+                fillColor: '#e34a33',
+                radius: 3,
+              };
+            },
+            onEachFeature: function(feature, layer) {
+              // console.log(stores);
+              var props = layer.feature.properties;
+              // console.log(props);
+              // console.log(props.Tot_Units);
+              var popup = `<h4>Address: ${props.PropAddr}<br>
+              Land use: ${props.LUDesc}<br>
+              </h4>`;
+              layer.bindTooltip(popup);
+            }
           }).addTo(map);
 
         });
+
+
+        const housing = $.getJSON("data/subhousing.geojson", function(data) {
+          var housingLayer = L.geoJson(data, {
+            pointToLayer: function(feature, latlng) {
+              return L.circleMarker(latlng);
+            },
+            style: function(feature) {
+              return {
+                color: '#FEEE00',
+                weight: 1,
+                fillOpacity: 0.7,
+                fillColor: '#fff7bc',
+                radius: 3,
+              }
+            },
+            onEachFeature: function(feature, layer) {
+              // console.log(stores);
+              var props = layer.feature.properties;
+              // console.log(props);
+              // console.log(props.Tot_Units);
+              var popup = `<h4>Address: ${props.Address}<br>
+              Owner name: ${props.OwnerName}<br>
+              Total Units: ${props.Tot_Units}<br>
+              Active dates: ${props.StartYear} &mdash;${props.EndYear}
+              </h4>`;
+              layer.bindTooltip(popup);
+            }
+          }).addTo(map);
+        });
+
+        // var sourcesLabels = {
+        //   "MDHA properties": mdha.housingLayer
+        // }
+        //
+        // L.control.layers(null, sourcesLabels, {
+        //   collapsed: false,
+        //
+        // }).addTo(map);
+
+
+        // var sourcesLabels = {
+        //   "<b style='color:#D12B18'>Fire stations</b>": stationsLayer,
+        //   "<b style='color:#1861D1'>After school programs</b>": programsLayer,
+        //   "<b style='color:#8818D1'>Food stores</b>": storesLayer
+        // };
+        //
+        // L.control.layers(null, sourcesLabels, {
+        //   collapsed: false
+        // }).addTo(map);
 
         updateMap(dataLayer, colorize, currentYear);
         drawLegend(breaks, colorize);
