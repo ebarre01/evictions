@@ -524,7 +524,8 @@
         }
 
         L.control.layers(null, sourcesLabels, {
-          collapsed: false,
+          collapsed: true,
+          position: 'topleft'
         }).addTo(map);
 
 
@@ -601,10 +602,13 @@
                 }
               });
 
+
+
             });
 
 
           };
+
 
         });
 
