@@ -190,7 +190,7 @@
         subdomains: 'abcd',
       }).addTo(map);
 
-      //CODE BEGINS HERE FOR EVICTIONS
+
       // create a Leaflet control for the legend
       const legendControl = L.control({
         position: 'topright'
@@ -210,11 +210,13 @@
             processData(blocks, data);
 
 
+
           }
         });
 
-      });
+        drawPoints();
 
+      });
 
       function processData(blocks, data) {
 
@@ -243,8 +245,204 @@
 
         getBreaks(blocks);
 
+
       }
 
+      function getBreaks(blocks) {
+        // empty array to store all the data values
+        const rates = [];
+
+
+        // iterate through all the block groups
+        blocks.features.forEach(function(block) {
+
+          // iterate through all the props of each block
+          for (const prop in block.properties) {
+
+            // if the attribute is a number and not one of the fips codes or name
+            if (prop != "GEOID10" && prop != "NAME") {
+
+              // push that attribute value into the array
+              rates.push(Number(block.properties[prop]));
+            }
+          }
+        });
+
+        // verify the results
+        // console.log(rates);
+
+
+        // create class breaks
+        var breaks = chroma.limits(rates, 'q', 5);
+
+
+        var colorize = chroma.scale(['#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']).classes(breaks).mode('lab');
+
+      drawMap(blocks, colorize, breaks);
+
+
+
+      }
+      //
+
+      function drawMap(blocks, colorize, breaks) {
+
+        // create Leaflet object with geometry data and add to map
+        const dataLayer = L.geoJson(blocks, {
+          style: function(feature) {
+            return {
+              color: 'black',
+              weight: 1,
+              fillOpacity: 1,
+              fillColor: '#1f78b4'
+            };
+          }
+
+        }).addTo(map);
+
+
+
+
+        updateMap(dataLayer, colorize, currentYear);
+        drawLegend(breaks, colorize);
+        createSliderUI(dataLayer, colorize);
+
+      }
+
+
+
+      // add the UI control
+      // call function globally to prevent looping
+
+        addUi()
+        // drawPoints()
+
+
+      function updateMap(dataLayer, colorize, currentYear) {
+
+        dataLayer.eachLayer(function(layer) {
+          const props = layer.feature.properties;
+          // console.log(layer.feature.properties);
+
+          layer.setStyle({
+            fillColor: colorize(Number(props[currentYear]))
+          })
+
+        });
+
+
+        retreiveInfo(dataLayer, currentYear);
+
+      }
+
+      function drawLegend(breaks, colorize) {
+
+        // when the control is added to the map
+        legendControl.onAdd = function(map) {
+
+          // create a new division element with class of 'legend' and return
+          const legend = L.DomUtil.create('div', 'legend');
+          return legend;
+
+        };
+
+        // add the legend control to the map
+        legendControl.addTo(map);
+
+        // select div and create legend title
+        const legend = $('.legend').html(`<h3><span>${currentYear}</span>Rate per 100 renters</h3><ul>`);
+
+        // loop through the break values
+        for (let i = 0; i < breaks.length - 1; i++) {
+
+          // determine color value
+          const color = colorize(breaks[i], breaks);
+
+          // create legend item
+          const classRange = `<li><span style="background:${color}"></span>
+        ${breaks[i].toLocaleString()} &mdash;
+        ${breaks[i + 1].toLocaleString()} </li>`
+
+          // append to legend unordered list item
+          $('.legend ul').append(classRange);
+
+        }
+
+
+        // const circle = '<li>MDHA properties</li>';
+        //
+        // legend.append(circle);
+
+
+        // close legend unordered list
+        legend.append("</ul>");
+
+      } // end drawLegend()
+
+
+      function createSliderUI(dataLayer, colorize) {
+
+        //create Leaflet control for the slider
+
+        // create Leaflet control for the slider
+        const sliderControl3 = L.control({
+          position: 'bottomleft'
+        });
+
+        sliderControl3.onAdd = function(map) {
+
+          // select an existing DOM element with an id of "ui-controls"
+          const slider3 = L.DomUtil.get("ui-controls3");
+
+          // disable scrolling of map while using controls
+          L.DomEvent.disableScrollPropagation(slider3);
+
+          // disable click events while using controls
+          L.DomEvent.disableClickPropagation(slider3);
+
+          // return the slider from the onAdd method
+          return slider3;
+        }
+
+        // add the control to the map
+        sliderControl3.addTo(map);
+
+        // select the form element
+        $(".year-slider3")
+          .on("input change", function() { // when user changes
+            const selection = this.value;
+            currentYear = swapYear(selection)
+
+            function swapYear(selection) {
+
+              return selection == 1 ? 2001 :
+                selection == 2 ? 2002 :
+                selection == 3 ? 2003 :
+                selection == 4 ? 2004 :
+                selection == 5 ? 2005 :
+                selection == 6 ? 2006 :
+                selection == 7 ? 2007 :
+                selection == 8 ? 2008 :
+                selection == 9 ? 2009 :
+                selection == 10 ? 2010 :
+                selection == 11 ? 2011 :
+                selection == 12 ? 2012 :
+                selection == 13 ? 2013 :
+                selection == 14 ? 2014 :
+                selection == 15 ? 2015 :
+                2016;
+
+            }
+            // console.log(currentYear,selection);
+            $('.legend h3 span').html(currentYear); // update legend with current timestamp
+            updateMap(dataLayer, colorize, currentYear); // update the map
+
+
+          });
+
+
+
+      } // end createSliderUI()
 
 
       function drawPoints(pub, sub) {
@@ -304,12 +502,12 @@
               }
             }).addTo(map);
 
-            const sourcesLabels = {
-              "<b style ='color:#FFD60A'> MDHA properties</b>": mdhaLayer,
-              "<b style ='color:#D62828'> Subsidized housing</b>": housingLayer
-            }
+            // const sourcesLabels = {
+            //   "<b style ='color:#FFD60A'> MDHA properties</b>": mdhaLayer,
+            //   "<b style ='color:#D62828'> Subsidized housing</b>": housingLayer
+            // }
 
-            addcontrol(sourcesLabels);
+            addcontrol(mdhaLayer, housingLayer);
 
           });
 
@@ -318,89 +516,12 @@
       }
 
 
-      function getBreaks(blocks) {
-        // empty array to store all the data values
-        const rates = [];
+      function addcontrol(mdhaLayer, housingLayer) {
 
-
-        // iterate through all the block groups
-        blocks.features.forEach(function(block) {
-
-          // iterate through all the props of each block
-          for (const prop in block.properties) {
-
-            // if the attribute is a number and not one of the fips codes or name
-            if (prop != "GEOID10" && prop != "NAME") {
-
-              // push that attribute value into the array
-              rates.push(Number(block.properties[prop]));
-            }
-          }
-        });
-
-        // verify the results
-        // console.log(rates);
-
-
-        // create class breaks
-        var breaks = chroma.limits(rates, 'q', 5);
-
-
-        var colorize = chroma.scale(['#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']).classes(breaks).mode('lab');
-
-      drawMap(blocks, colorize, breaks);
-
-      }
-      //
-
-      function drawMap(blocks, colorize, breaks) {
-
-        // create Leaflet object with geometry data and add to map
-        const dataLayer = L.geoJson(blocks, {
-          style: function(feature) {
-            return {
-              color: 'black',
-              weight: 1,
-              fillOpacity: 1,
-              fillColor: '#1f78b4'
-            };
-          }
-
-        }).addTo(map);
-
-
-        updateMap(dataLayer, colorize, currentYear);
-        drawLegend(breaks, colorize);
-        createSliderUI(dataLayer, colorize);
-
-      }
-
-      // add the UI control
-      // call function globally to prevent looping
-
-      addUi()
-      drawPoints()
-
-
-      function updateMap(dataLayer, colorize, currentYear) {
-
-        dataLayer.eachLayer(function(layer) {
-          const props = layer.feature.properties;
-          // console.log(layer.feature.properties);
-
-          layer.setStyle({
-            fillColor: colorize(Number(props[currentYear]))
-          })
-
-        });
-
-
-        retreiveInfo(dataLayer, currentYear);
-
-
-      }
-
-      function addcontrol(sourcesLabels) {
+        const sourcesLabels = {
+          "<b style ='color:#FFD60A'> MDHA properties</b>": mdhaLayer,
+          "<b style ='color:#D62828'> Subsidized housing</b>": housingLayer
+        }
 
         L.control.layers(null, sourcesLabels, {
           collapsed: false,
@@ -409,113 +530,8 @@
 
       }
 
-      function drawLegend(breaks, colorize) {
-
-        // when the control is added to the map
-        legendControl.onAdd = function(map) {
-
-          // create a new division element with class of 'legend' and return
-          const legend = L.DomUtil.create('div', 'legend');
-          return legend;
-
-        };
-
-        // add the legend control to the map
-        legendControl.addTo(map);
-
-        // select div and create legend title
-        const legend = $('.legend').html(`<h3><span>${currentYear}</span>Rate per 100 renters</h3><ul>`);
-
-        // loop through the break values
-        for (let i = 0; i < breaks.length - 1; i++) {
-
-          // determine color value
-          const color = colorize(breaks[i], breaks);
-
-          // create legend item
-          const classRange = `<li><span style="background:${color}"></span>
-        ${breaks[i].toLocaleString()} &mdash;
-        ${breaks[i + 1].toLocaleString()} </li>`
-
-          // append to legend unordered list item
-          $('.legend ul').append(classRange);
-
-        }
-
-
-        // const circle = '<li>MDHA properties</li>';
-        //
-        // legend.append(circle);
-
-
-        // close legend unordered list
-        legend.append("</ul>");
-
-      } // end drawLegend()
-
-
-      function createSliderUI(dataLayer, colorize) {
-        //create Leaflet control for the slider
-
-        // create Leaflet control for the slider
-        const sliderControl3 = L.control({
-          position: 'bottomleft'
-        });
-
-        sliderControl3.onAdd = function(map) {
-
-          // select an existing DOM element with an id of "ui-controls"
-          const slider3 = L.DomUtil.get("ui-controls3");
-
-          // disable scrolling of map while using controls
-          L.DomEvent.disableScrollPropagation(slider3);
-
-          // disable click events while using controls
-          L.DomEvent.disableClickPropagation(slider3);
-
-          // return the slider from the onAdd method
-          return slider3;
-        }
-
-        // add the control to the map
-        sliderControl3.addTo(map);
-
-        // select the form element
-        $(".year-slider3")
-          .on("input change", function() { // when user changes
-            const selection = this.value;
-            currentYear = swapYear(selection)
-
-            function swapYear(selection) {
-
-              return selection == 1 ? 2001 :
-                selection == 2 ? 2002 :
-                selection == 3 ? 2003 :
-                selection == 4 ? 2004 :
-                selection == 5 ? 2005 :
-                selection == 6 ? 2006 :
-                selection == 7 ? 2007 :
-                selection == 8 ? 2008 :
-                selection == 9 ? 2009 :
-                selection == 10 ? 2010 :
-                selection == 11 ? 2011 :
-                selection == 12 ? 2012 :
-                selection == 13 ? 2013 :
-                selection == 14 ? 2014 :
-                selection == 15 ? 2015 :
-                2016;
-
-            }
-            // console.log(currentYear,selection);
-            $('.legend h3 span').html(currentYear); // update legend with current timestamp
-            updateMap(dataLayer, colorize, currentYear); // update the map
-
-          });
-
-      } // end createSliderUI()
-
-
       function addUi(dataLayer) {
+
         // create the slider control
         var selectControl = L.control({
           position: "topright"
@@ -591,6 +607,7 @@
           };
 
         });
+
 
       }
 
@@ -691,6 +708,7 @@
             });
           }
         });
+
       }
 
     </script>
